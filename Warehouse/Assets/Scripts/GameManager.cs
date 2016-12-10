@@ -15,13 +15,13 @@ public class GameManager : MonoBehaviour
     int _maxDeliveryTrucks;
     [SerializeField]
     int _maxPickupTrucks;
-    [SerializeField]
-    float _deliveryTruckSpawnTimer;
-    [SerializeField]
-    float _pickupTruckSpawnTimer;
-    [SerializeField]
-    int _currDeliveryTrucks;
-    [SerializeField]
+    [SerializeField][ReadOnly]
+	float _deliveryTruckSpawnTimer;
+    [SerializeField][ReadOnly]
+	float _pickupTruckSpawnTimer;
+    [SerializeField][ReadOnly]
+	int _currDeliveryTrucks;
+    [SerializeField][ReadOnly]
     int _currPickupTrucks;
 
     private static GameManager _instance;
@@ -74,9 +74,7 @@ public class GameManager : MonoBehaviour
         _deliveryTruckSpawnTimer -= Time.deltaTime;
 
         if (_deliveryTruckSpawnTimer <= 0.0f)
-        {
-            _deliveryTruckSpawnTimer = _deliveryTruckSpawnDelay;
-
+		{
             if (_currDeliveryTrucks < _maxDeliveryTrucks)
             {
                 Truck t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
@@ -90,7 +88,29 @@ public class GameManager : MonoBehaviour
 
                 t.Arrive();
                 _currDeliveryTrucks++;
-            }
+				_deliveryTruckSpawnTimer = _deliveryTruckSpawnDelay;
+			}
         }
-    }
+
+		_pickupTruckSpawnTimer -= Time.deltaTime;
+
+		if (_pickupTruckSpawnTimer <= 0.0f)
+		{
+			if (_currPickupTrucks < _maxPickupTrucks)
+			{
+				Truck t = PickupTruckSlots[Random.Range(0, PickupTruckSlots.Length)].GetComponentInChildren<Truck>();
+				t.IsDeliveryTruck = false;
+
+				while (!t.IsOffscreen)
+				{
+					t = PickupTruckSlots[Random.Range(0, PickupTruckSlots.Length)].GetComponentInChildren<Truck>();
+					t.IsDeliveryTruck = false;
+				}
+
+				t.Arrive();
+				_currPickupTrucks++;
+				_pickupTruckSpawnTimer = _pickupTruckSpawnDelay;
+			}
+		}
+	}
 }
