@@ -73,3 +73,6 @@ $RECYCLE.BIN/
 /Assets/uIntelliSense/VisualStudioExtension
 /Assets/uIntelliSense/VisualStudioExtension.meta
 /Assets/uIntelliSense/Editor
+Warehouse/Warehouse.CSharp.Editor.csproj
+Warehouse/Warehouse.sln
+Warehouse/.vs/Warehouse/v14/.suo
