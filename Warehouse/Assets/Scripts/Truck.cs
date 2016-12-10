@@ -4,6 +4,7 @@ using UnityEngine.UI;
 public class Truck : MonoBehaviour
 {
 	[SerializeField]
+	[ReadOnly]
 	bool _isDeliveryTruck;
 	[SerializeField]
 	bool _randomTruckSize;

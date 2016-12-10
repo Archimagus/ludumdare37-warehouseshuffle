@@ -2,6 +2,21 @@
 
 public class GameManager : MonoBehaviour
 {
+	private static GameManager _instance;
+	public static GameManager Instance
+	{
+		get
+		{
+			if (_instance == null)
+				_instance = FindObjectOfType<GameManager>();
+			if (_instance == null)
+			{
+				Debug.LogError("No GameManager in the scene");
+			}
+			return _instance;
+		}
+	}
+
 	public GameObject[] DeliveryTruckSlots;
 	public GameObject[] PickupTruckSlots;
 
@@ -29,10 +44,4 @@ public class GameManager : MonoBehaviour
 				t.Arrive();
 		}
 	}
-}
-
-
-public class ReadOnlyAttribute : PropertyAttribute
-{
-
 }
