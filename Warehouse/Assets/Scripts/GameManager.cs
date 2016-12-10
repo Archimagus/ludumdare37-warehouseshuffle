@@ -7,28 +7,73 @@ public class GameManager : MonoBehaviour
     public GameObject[] DeliveryTruckSlots;
     public GameObject[] PickupTruckSlots;
 
+    [SerializeField]
+    float _deliveryTruckSpawnDelay;
+    [SerializeField]
+    float _pickupTruckSpawnDelay;
+    [SerializeField]
+    int _maxDeliveryTrucks;
+    [SerializeField]
+    int _maxPickupTrucks;
+    [SerializeField]
+    float _deliveryTruckSpawnTimer;
+    [SerializeField]
+    float _pickupTruckSpawnTimer;
+    [SerializeField]
+    int _currDeliveryTrucks;
+    [SerializeField]
+    int _currPickupTrucks;
+
     // Use this for initialization
     void Start ()
     {
-		
+        Init();
 	}
 	
 	// Update is called once per frame
 	void Update ()
     {
-		if (Input.GetKeyDown(KeyCode.Space))
+        SpawnTruck();
+    }
+
+    void Init()
+    {
+        _deliveryTruckSpawnTimer = _deliveryTruckSpawnDelay = 6;
+        _pickupTruckSpawnTimer = _pickupTruckSpawnDelay = 6;
+        _maxDeliveryTrucks = 3;
+        _maxPickupTrucks = 3;
+        _currDeliveryTrucks = 0;
+        _currPickupTrucks = 0;
+    }
+
+    public void TruckIsOffscreen(bool isDeliveryTruck)
+    {
+        if (isDeliveryTruck)
+            _currDeliveryTrucks--;
+        else
+            _currPickupTrucks--;
+    }
+
+    void SpawnTruck()
+    {
+        _deliveryTruckSpawnTimer -= Time.deltaTime;
+
+        if (_deliveryTruckSpawnTimer <= 0.0f)
         {
-            Truck t;
+            _deliveryTruckSpawnTimer = _deliveryTruckSpawnDelay;
 
-            if (Random.Range(0, 100) > 50)
-                t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();              
-            else
-                t = PickupTruckSlots[Random.Range(0, PickupTruckSlots.Length)].GetComponentInChildren<Truck>();
+            if (_currDeliveryTrucks < _maxDeliveryTrucks)
+            {
+                Truck t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
 
-            t = DeliveryTruckSlots[0].GetComponentInChildren<Truck>();
+                while (!t.IsOffscreen)
+                {
+                    t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
+                }
 
-            if (t.IsOffscreen)
                 t.Arrive();
+                _currDeliveryTrucks++;
+            }
         }
     }
 }

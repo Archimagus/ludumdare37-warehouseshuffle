@@ -25,7 +25,6 @@ public class Truck : MonoBehaviour
 	Animator _slotAnimator;
 
 	float _waitTime;
-	float _startTime;
 
 	int _deliveryValue;
 
@@ -112,6 +111,7 @@ public class Truck : MonoBehaviour
 		if (_slotAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !_slotAnimator.IsInTransition(0))
 		{
 			_currState = TruckState.OffScreen;
+            
 		}
 	}
 }
