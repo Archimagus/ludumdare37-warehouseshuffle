@@ -5,11 +5,10 @@ using UnityEngine.UI;
 
 enum Space
 {
-	Unavailable,
+	Available,
 	Occupied,
-	Available
 }
-public class Warehouse : MonoBehaviour, IDragHandler
+public class Warehouse : MonoBehaviour, IDragHandler, IDropHandler
 {
 	private const int MaxGridSize = 5;
 
@@ -50,7 +49,23 @@ public class Warehouse : MonoBehaviour, IDragHandler
 
 	public void OnDrag(PointerEventData eventData)
 	{
-		Debug.Log(new string(eventData.hovered.SelectMany(h => h.name + " ").ToArray()));
+
+		var tile = eventData.hovered.FirstOrDefault(g => g.CompareTag("DropTile"));
+		Debug.Log(tile);
+	}
+	public void OnDrop(PointerEventData eventData)
+	{
+		var tile = eventData.hovered.FirstOrDefault(g => g.CompareTag("DropTile"));
+		if (tile != null)
+		{
+			var index = tile.transform.GetSiblingIndex();
+			var row = index / _spaces.Cols;
+			var col = index % _spaces.Cols;
+
+			_spaces[row, col] = Space.Occupied;
+
+			RepopulateGrid();
+		}
 	}
 
 	//void Update()
@@ -103,13 +118,13 @@ public class Warehouse : MonoBehaviour, IDragHandler
 			Destroy(c.gameObject);
 		}
 
-		for (int i = 0; i < _spaces.Rows; i++)
+		for (int r = 0; r < _spaces.Rows; r++)
 		{
-			for (int j = 0; j < _spaces.Cols; j++)
+			for (int c = 0; c < _spaces.Cols; c++)
 			{
-				var c = Instantiate(_tilePrefab);
-				c.color = Color.green;
-				c.transform.SetParent(_floorImage.transform);
+				var t = Instantiate(_tilePrefab);
+				t.color = _spaces[r, c] == Space.Available ? Color.green : Color.red;
+				t.transform.SetParent(_floorImage.transform, false);
 			}
 		}
 
