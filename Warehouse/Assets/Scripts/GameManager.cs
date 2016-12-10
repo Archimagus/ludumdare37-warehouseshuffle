@@ -80,11 +80,13 @@ public class GameManager : MonoBehaviour
             if (_currDeliveryTrucks < _maxDeliveryTrucks)
             {
                 Truck t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
+				t.IsDeliveryTruck = true;
 
                 while (!t.IsOffscreen)
                 {
                     t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
-                }
+					t.IsDeliveryTruck = true;
+				}
 
                 t.Arrive();
                 _currDeliveryTrucks++;

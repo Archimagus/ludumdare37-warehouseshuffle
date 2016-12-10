@@ -29,6 +29,7 @@ public class Truck : MonoBehaviour
 	int _deliveryValue;
 
 	public bool IsOffscreen { get { return _currState == TruckState.OffScreen; } }
+    public bool IsDeliveryTruck { get { return _isDeliveryTruck; } set { _isDeliveryTruck = value; } }
 
 	// Use this for initialization
 	void Start()
@@ -111,7 +112,7 @@ public class Truck : MonoBehaviour
 		if (_slotAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !_slotAnimator.IsInTransition(0))
 		{
 			_currState = TruckState.OffScreen;
-            
+            GameManager.Instance.TruckIsOffscreen(_isDeliveryTruck);
 		}
 	}
 }
