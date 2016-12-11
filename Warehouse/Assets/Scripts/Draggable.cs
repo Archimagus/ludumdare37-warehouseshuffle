@@ -82,6 +82,7 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 		if (container != null)
 			container.RemoveInventory(Item);
 
+
 		parentToReturnTo = newParent;
 
 
