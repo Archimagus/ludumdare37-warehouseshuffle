@@ -12,11 +12,15 @@ public class GameManager : MonoBehaviour
 	float _initialDeliveryTruckDelay = 0;
 	[SerializeField]
 	float _deliveryTruckSpawnDelay = 10;
+	[SerializeField]
+	private float _deliveryTruckWaitTime = 3.0f;
 	[Space]
 	[SerializeField]
 	float _initialPickupTruckDelay = 60.0f;
 	[SerializeField]
 	float _pickupTruckSpawnDelay = 20;
+	[SerializeField]
+	private float _pickupTruckWaitTime = 3.0f;
 	[Space]
 	[SerializeField]
 	int _maxDeliveryTrucks = 3;
@@ -71,8 +75,6 @@ public class GameManager : MonoBehaviour
 	{
 		_currDeliveryTrucks = 0;
 		_currPickupTrucks = 0;
-		_deliveryTruckSpawnTimer = Random.Range(_deliveryTruckSpawnDelay / 2.0f, _deliveryTruckSpawnDelay);
-		_pickupTruckSpawnTimer = Random.Range(_pickupTruckSpawnDelay / 2.0f, _pickupTruckSpawnDelay);
 		MoneyText.text = _playerCash.ToString("C");
 	}
 
@@ -86,24 +88,32 @@ public class GameManager : MonoBehaviour
 
 	void SpawnTruck()
 	{
-		_deliveryTruckSpawnTimer -= Time.deltaTime;
-
-		if (_deliveryTruckSpawnTimer <= 0.0f)
+		if (_initialDeliveryTruckDelay >= 0)
 		{
-			if (_currDeliveryTrucks < _maxDeliveryTrucks)
+			_initialDeliveryTruckDelay -= Time.deltaTime;
+		}
+		else
+		{
+			_deliveryTruckSpawnTimer -= Time.deltaTime;
+
+			if (_deliveryTruckSpawnTimer <= 0.0f)
 			{
-				Truck t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
-				t.IsDeliveryTruck = true;
-
-				while (!t.IsOffscreen)
+				if (_currDeliveryTrucks < _maxDeliveryTrucks)
 				{
-					t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
+					Truck t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
 					t.IsDeliveryTruck = true;
-				}
 
-				t.Arrive();
-				_currDeliveryTrucks++;
-				_deliveryTruckSpawnTimer = Random.Range(_deliveryTruckSpawnDelay / 2.0f, _deliveryTruckSpawnDelay); ;
+					while (!t.IsOffscreen)
+					{
+						t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
+						t.IsDeliveryTruck = true;
+					}
+					t.InitialWaitTime = _deliveryTruckWaitTime;
+					t.Arrive();
+					_currDeliveryTrucks++;
+					_deliveryTruckSpawnTimer = Random.Range(_deliveryTruckSpawnDelay / 2.0f, _deliveryTruckSpawnDelay);
+					;
+				}
 			}
 		}
 
@@ -128,6 +138,7 @@ public class GameManager : MonoBehaviour
 						t.IsDeliveryTruck = false;
 					}
 
+					t.InitialWaitTime = _pickupTruckWaitTime;
 					t.Arrive();
 					_currPickupTrucks++;
 					_pickupTruckSpawnTimer = Random.Range(_pickupTruckSpawnDelay / 2.0f, _pickupTruckSpawnDelay); ;

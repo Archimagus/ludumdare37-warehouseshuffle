@@ -24,7 +24,18 @@ public class DynaGrid<T> : IEnumerable<T>
 	public T this[int r, int c]
 	{
 		get { return _grid[r, c]; }
-		set { _grid[r, c] = value; }
+		set
+		{
+			try
+			{
+				_grid[r, c] = value;
+			}
+			catch (Exception)
+			{
+				UnityEngine.Debug.LogError(string.Format("Error accessing [{0},{1}] in DynaGrid with type {2}", r, c, typeof(T).Name));
+				throw;
+			}
+		}
 	}
 
 	public void Expand(ExpandDir dir)

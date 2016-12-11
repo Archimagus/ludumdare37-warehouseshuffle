@@ -9,7 +9,7 @@ enum Space
 
 public class Warehouse : MonoBehaviour, IInventoryContainer
 {
-	private const int MaxGridSize = 5;
+	private const int MaxGridSize = 10;
 
 	[Header("Game Objects")]
 	[SerializeField]
@@ -19,7 +19,7 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 
 	[Header("Prefabs")]
 	[SerializeField]
-	private Image _tilePrefab;
+	private DropArea _tilePrefab;
 
 	[Header("Settings")]
 	[SerializeField]
@@ -29,13 +29,30 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 	[Range(1, MaxGridSize)]
 	private int _startingCols = 2;
 	[SerializeField]
+	private int _maxUpgradesPerDirection = 4;
+
+	[SerializeField]
 	private int _gridElementSize = 64;
 	[SerializeField]
 	private int _gridSpacing = 1;
 	[SerializeField]
 	private int _borderSize = 80;
+
+	[SerializeField]
+	private int _costPerExpansionSquare = 200;
+
+	public int HorizontalUpgradeCost { get { return _tiles.Rows * _costPerExpansionSquare; } }
+	public int VerticalUpgradeCost { get { return _tiles.Cols * _costPerExpansionSquare; } }
+
+	private int[] _upgradeCounts = new int[4];
+
+	public bool CanUpgrade(ExpandDir direction)
+	{
+		return _upgradeCounts[(int)direction] <= _maxUpgradesPerDirection;
+	}
+
 	DynaGrid<int> _spaces;
-	DynaGrid<Image> _tiles;
+	DynaGrid<DropArea> _tiles;
 
 	void Start()
 	{
@@ -43,60 +60,64 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 		RepopulateGrid();
 	}
 
-	void OnValidate()
-	{
-		ResizeGrid();
-	}
-
-	public bool IsValidDrop(Transform tx)
-	{
-		var index = tx.GetSiblingIndex();
-		var row = index / _spaces.Cols;
-		var col = index % _spaces.Cols;
-		return _spaces[row, col] == 0;
-	}
-
 
 	public void ExpandRight()
 	{
+		GameManager.Instance.AdjustCash(-HorizontalUpgradeCost);
 		var offset = _frameRect.offsetMax;
 		offset.x += _gridElementSize + _gridSpacing;
 		_frameRect.offsetMax = offset;
 		_spaces.Expand(ExpandDir.Right);
 		_tiles.Expand(ExpandDir.Right);
+		_upgradeCounts[(int)ExpandDir.Right]++;
 		RepopulateGrid();
 	}
 
 	public void ExpandLeft()
 	{
+		GameManager.Instance.AdjustCash(-HorizontalUpgradeCost);
 		var offset = _frameRect.offsetMin;
 		offset.x -= _gridElementSize + _gridSpacing;
 		_frameRect.offsetMin = offset;
 		_spaces.Expand(ExpandDir.Left);
 		_tiles.Expand(ExpandDir.Left);
+		_upgradeCounts[(int)ExpandDir.Left]++;
 		RepopulateGrid();
 	}
 
 	public void ExpandUp()
 	{
+		GameManager.Instance.AdjustCash(-VerticalUpgradeCost);
 		var offset = _frameRect.offsetMax;
 		offset.y += _gridElementSize + _gridSpacing;
 		_frameRect.offsetMax = offset;
 		_spaces.Expand(ExpandDir.Up);
 		_tiles.Expand(ExpandDir.Up);
+		_upgradeCounts[(int)ExpandDir.Up]++;
 		RepopulateGrid();
 	}
 
 	public void ExpandDown()
 	{
+		GameManager.Instance.AdjustCash(-VerticalUpgradeCost);
 		var offset = _frameRect.offsetMin;
 		offset.y -= _gridElementSize + _gridSpacing;
 		_frameRect.offsetMin = offset;
 		_spaces.Expand(ExpandDir.Down);
 		_tiles.Expand(ExpandDir.Down);
+		_upgradeCounts[(int)ExpandDir.Down]++;
 		RepopulateGrid();
 	}
 
+	public bool IsValidDrop(Transform targetTx, WarehouseItem item)
+	{
+		var index = targetTx.GetSiblingIndex();
+		var row = index / _spaces.Cols;
+		var col = index % _spaces.Cols;
+		var itemId = item.GetInstanceID();
+		var id = _spaces[row, col];
+		return id == 0 || id == itemId;
+	}
 	public void RemoveInventory(WarehouseItem removedObject)
 	{
 		var id = removedObject.GetInstanceID();
@@ -135,19 +156,23 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 					t = Instantiate(_tilePrefab);
 					_tiles[r, c] = t;
 					t.transform.SetParent(tx, false);
+					t.Parent = this;
 				}
-				t.GetComponent<DropArea>().ValidDropID = id;
-				t.rectTransform.localPosition = new Vector3(startx + ((_gridElementSize + _gridSpacing) * c), starty - ((_gridElementSize + _gridSpacing) * r));
-				t.rectTransform.SetAsLastSibling();
+				t.ValidDropID = id;
+				var rt = t.GetComponent<RectTransform>();
+				rt.localPosition = new Vector3(startx + ((_gridElementSize + _gridSpacing) * c),
+					starty - ((_gridElementSize + _gridSpacing) * r));
+				rt.SetAsLastSibling();
 			}
 		}
 
 	}
 
+	[ContextMenu("ResizeGrid")]
 	public void ResizeGrid()
 	{
 		_spaces = new DynaGrid<int>(_startingRows, _startingCols);
-		_tiles = new DynaGrid<Image>(_startingRows, _startingCols);
+		_tiles = new DynaGrid<DropArea>(_startingRows, _startingCols);
 
 		var offset = _frameRect.offsetMax;
 		offset.x = (_gridElementSize + _gridSpacing) * (_startingCols / 2f) + _borderSize;
@@ -165,4 +190,5 @@ public interface IInventoryContainer
 {
 	void AddInventory(Transform targetTransform, WarehouseItem droppedObject);
 	void RemoveInventory(WarehouseItem removedObject);
+	bool IsValidDrop(Transform targetTx, WarehouseItem item);
 }

@@ -8,7 +8,10 @@ public class DropArea : MonoBehaviour, IPointerEnterHandler, IDropHandler, IPoin
 	public Color ValidDropColor = Color.green;
 	public Color InvalidDropColor = Color.red;
 
-	public int ValidDropID { get; set; }
+	[ReadOnly]
+	public int ValidDropID;
+
+	public IInventoryContainer Parent { get; set; }
 
 	virtual public void OnPointerEnter(PointerEventData eventData)
 	{
@@ -54,7 +57,7 @@ public class DropArea : MonoBehaviour, IPointerEnterHandler, IDropHandler, IPoin
 
 	virtual public bool HilightIfDroppable(Draggable draggable)
 	{
-		if (ValidDropID == 0 || ValidDropID == draggable.gameObject.GetInstanceID())
+		if (Parent.IsValidDrop(transform, draggable.Item) && (ValidDropID == 0 || ValidDropID == draggable.Item.GetInstanceID()))
 		{
 			GetComponent<Image>().color = ValidDropColor;
 			return true;

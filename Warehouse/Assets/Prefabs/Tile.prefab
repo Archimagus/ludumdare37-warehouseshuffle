@@ -40,9 +40,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6ddda23732c7c54f9ad6229a8fcc45e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NutralColor: {r: 1, g: 1, b: 1, a: 0.4}
+  NutralColor: {r: 1, g: 1, b: 1, a: 0}
   ValidDropColor: {r: 0, g: 1, b: 0, a: 0.4}
   InvalidDropColor: {r: 1, g: 0, b: 0, a: 0.4}
+  ValidDropID: 0
 --- !u!114 &114574952441164564
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -55,7 +56,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.4}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
