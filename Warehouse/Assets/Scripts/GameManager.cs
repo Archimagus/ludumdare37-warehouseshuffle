@@ -1,116 +1,149 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject[] DeliveryTruckSlots;
-    public GameObject[] PickupTruckSlots;
+	public GameObject[] DeliveryTruckSlots;
+	public GameObject[] PickupTruckSlots;
+	public WarehouseItem[] WarehouseItems;
+	public UnityEngine.UI.Text MoneyText;
 
-    [SerializeField]
-    float _deliveryTruckSpawnDelay;
-    [SerializeField]
-    float _pickupTruckSpawnDelay;
-    [SerializeField]
-    int _maxDeliveryTrucks;
-    [SerializeField]
-    int _maxPickupTrucks;
-    [SerializeField][ReadOnly]
+	[Header("System Variables")]
+	[SerializeField]
+	float _initialDeliveryTruckDelay = 0;
+	[SerializeField]
+	float _deliveryTruckSpawnDelay = 10;
+	[Space]
+	[SerializeField]
+	float _initialPickupTruckDelay = 60.0f;
+	[SerializeField]
+	float _pickupTruckSpawnDelay = 20;
+	[Space]
+	[SerializeField]
+	int _maxDeliveryTrucks = 3;
+	[SerializeField]
+	int _maxPickupTrucks = 3;
+	[SerializeField]
+	int _playerCash = 1000;
+	[Header("ReadOnly")]
+	[SerializeField]
+	[ReadOnly]
 	float _deliveryTruckSpawnTimer;
-    [SerializeField][ReadOnly]
+	[SerializeField]
+	[ReadOnly]
 	float _pickupTruckSpawnTimer;
-    [SerializeField][ReadOnly]
+	[SerializeField]
+	[ReadOnly]
 	int _currDeliveryTrucks;
-    [SerializeField][ReadOnly]
-    int _currPickupTrucks;
+	[SerializeField]
+	[ReadOnly]
+	int _currPickupTrucks;
 
-    private static GameManager _instance;
-    public static GameManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-                _instance = FindObjectOfType<GameManager>();
-            if (_instance == null)
-            {
-                Debug.LogError("No GameManager in the scene");
-            }
-            return _instance;
-        }
-    }
 
-    // Use this for initialization
-    void Start ()
-    {
-        Init();
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-        SpawnTruck();
-    }
 
-    void Init()
-    {
-        _deliveryTruckSpawnTimer = _deliveryTruckSpawnDelay = 6;
-        _pickupTruckSpawnTimer = _pickupTruckSpawnDelay = 6;
-        _maxDeliveryTrucks = 3;
-        _maxPickupTrucks = 3;
-        _currDeliveryTrucks = 0;
-        _currPickupTrucks = 0;
-    }
-
-    public void TruckIsOffscreen(bool isDeliveryTruck)
-    {
-        if (isDeliveryTruck)
-            _currDeliveryTrucks--;
-        else
-            _currPickupTrucks--;
-    }
-
-    void SpawnTruck()
-    {
-        _deliveryTruckSpawnTimer -= Time.deltaTime;
-
-        if (_deliveryTruckSpawnTimer <= 0.0f)
+	private static GameManager _instance;
+	public static GameManager Instance
+	{
+		get
 		{
-            if (_currDeliveryTrucks < _maxDeliveryTrucks)
-            {
-                Truck t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
-				t.IsDeliveryTruck = true;
-
-                while (!t.IsOffscreen)
-                {
-                    t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
-					t.IsDeliveryTruck = true;
-				}
-
-                t.Arrive();
-                _currDeliveryTrucks++;
-				_deliveryTruckSpawnTimer = _deliveryTruckSpawnDelay;
-			}
-        }
-
-		_pickupTruckSpawnTimer -= Time.deltaTime;
-
-		if (_pickupTruckSpawnTimer <= 0.0f)
-		{
-			if (_currPickupTrucks < _maxPickupTrucks)
+			if (_instance == null)
+				_instance = FindObjectOfType<GameManager>();
+			if (_instance == null)
 			{
-				Truck t = PickupTruckSlots[Random.Range(0, PickupTruckSlots.Length)].GetComponentInChildren<Truck>();
-				t.IsDeliveryTruck = false;
+				Debug.LogError("No GameManager in the scene");
+			}
+			return _instance;
+		}
+	}
+
+	// Use this for initialization
+	void Start()
+	{
+		Init();
+	}
+
+	// Update is called once per frame
+	void Update()
+	{
+		SpawnTruck();
+	}
+
+	void Init()
+	{
+		_currDeliveryTrucks = 0;
+		_currPickupTrucks = 0;
+		_deliveryTruckSpawnTimer = Random.Range(_deliveryTruckSpawnDelay / 2.0f, _deliveryTruckSpawnDelay);
+		_pickupTruckSpawnTimer = Random.Range(_pickupTruckSpawnDelay / 2.0f, _pickupTruckSpawnDelay);
+		MoneyText.text = _playerCash.ToString("C");
+	}
+
+	public void TruckIsOffscreen(bool isDeliveryTruck)
+	{
+		if (isDeliveryTruck)
+			_currDeliveryTrucks--;
+		else
+			_currPickupTrucks--;
+	}
+
+	void SpawnTruck()
+	{
+		_deliveryTruckSpawnTimer -= Time.deltaTime;
+
+		if (_deliveryTruckSpawnTimer <= 0.0f)
+		{
+			if (_currDeliveryTrucks < _maxDeliveryTrucks)
+			{
+				Truck t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
+				t.IsDeliveryTruck = true;
 
 				while (!t.IsOffscreen)
 				{
-					t = PickupTruckSlots[Random.Range(0, PickupTruckSlots.Length)].GetComponentInChildren<Truck>();
-					t.IsDeliveryTruck = false;
+					t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
+					t.IsDeliveryTruck = true;
 				}
 
 				t.Arrive();
-				_currPickupTrucks++;
-				_pickupTruckSpawnTimer = _pickupTruckSpawnDelay;
+				_currDeliveryTrucks++;
+				_deliveryTruckSpawnTimer = Random.Range(_deliveryTruckSpawnDelay / 2.0f, _deliveryTruckSpawnDelay); ;
 			}
 		}
+
+		if (_initialPickupTruckDelay >= 0)
+		{
+			_initialPickupTruckDelay -= Time.deltaTime;
+		}
+		else
+		{
+			_pickupTruckSpawnTimer -= Time.deltaTime;
+
+			if (_pickupTruckSpawnTimer <= 0.0f)
+			{
+				if (_currPickupTrucks < _maxPickupTrucks)
+				{
+					Truck t = PickupTruckSlots[Random.Range(0, PickupTruckSlots.Length)].GetComponentInChildren<Truck>();
+					t.IsDeliveryTruck = false;
+
+					while (!t.IsOffscreen)
+					{
+						t = PickupTruckSlots[Random.Range(0, PickupTruckSlots.Length)].GetComponentInChildren<Truck>();
+						t.IsDeliveryTruck = false;
+					}
+
+					t.Arrive();
+					_currPickupTrucks++;
+					_pickupTruckSpawnTimer = Random.Range(_pickupTruckSpawnDelay / 2.0f, _pickupTruckSpawnDelay); ;
+				}
+			}
+		}
+	}
+
+	public WarehouseItem GetWarehouseItem()
+	{
+		return Instantiate(WarehouseItems[Random.Range(0, WarehouseItems.Length)]);
+	}
+
+	public void AdjustCash(int amount)
+	{
+		_playerCash += amount;
+		MoneyText.text = _playerCash.ToString("C");
 	}
 }

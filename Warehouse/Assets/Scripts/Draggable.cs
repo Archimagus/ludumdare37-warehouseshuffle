@@ -1,17 +1,16 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.EventSystems;
-using UnityEngine.Audio;
 using UnityEngine.UI;
-using System;
 
-public class Draggable : MonoBehaviour, IBeginDragHandler , IDragHandler, IEndDragHandler
+[RequireComponent(typeof(LayoutElement))]
+public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 	public Transform parentToReturnTo { get; set; }
 	public Transform placeholderParent { get; set; }
 	public GameObject placeholder { get; set; }
+
 	private bool _canDrag = true;
-	public bool CanDrag 
+	public bool CanDrag
 	{
 		get { return _canDrag; }
 		set
@@ -21,7 +20,6 @@ public class Draggable : MonoBehaviour, IBeginDragHandler , IDragHandler, IEndDr
 
 		}
 	}
-
 
 	public void OnBeginDrag(PointerEventData eventData)
 	{
@@ -35,13 +33,14 @@ public class Draggable : MonoBehaviour, IBeginDragHandler , IDragHandler, IEndDr
 		placeholder = new GameObject("Placeholder");
 		placeholder.transform.SetParent(placeholderParent);
 		placeholder.transform.SetSiblingIndex(transform.GetSiblingIndex());
+		placeholder.AddComponent<Image>();
 		var phLayout = placeholder.AddComponent<LayoutElement>();
 		phLayout.flexibleWidth = 0;
 		phLayout.flexibleHeight = 0;
-		phLayout.preferredWidth = GetComponent<LayoutElement>().preferredWidth / 2;
+		phLayout.preferredWidth = GetComponent<LayoutElement>().preferredWidth;
 		phLayout.preferredHeight = GetComponent<LayoutElement>().preferredHeight;
-
 		transform.SetParent(transform.parent.parent);
+		GetComponent<WarehouseItem>().DisplayTruckGraphic = false;
 		foreach (var item in FindObjectsOfType<DropArea>())
 		{
 			item.HilightIfDroppable(this);
@@ -54,29 +53,36 @@ public class Draggable : MonoBehaviour, IBeginDragHandler , IDragHandler, IEndDr
 		if (!CanDrag)
 		{
 			eventData.pointerDrag = null;
-			return; 
+			return;
 		}
 
 		transform.position = eventData.position;
 
 		if (placeholder.transform.parent != placeholderParent)
-			placeholder.transform.SetParent(placeholderParent);
-
-		placeholderParent.GetComponent<DropArea>().PositionPlaceholder(eventData);
+			placeholder.transform.SetParent(placeholderParent, false);
 	}
 	public void DroppedOn(Transform newParent)
 	{
-		parentToReturnTo.SendMessage("CardRemoved", SendMessageOptions.DontRequireReceiver);
+		var warehouse = parentToReturnTo.GetComponentInParent<IInventoryContainer>();
+		if (warehouse != null)
+			warehouse.RemoveInventory(gameObject.GetComponent<WarehouseItem>());
+
+
 		parentToReturnTo = newParent;
+
+
+		warehouse = newParent.GetComponentInParent<IInventoryContainer>();
+		if (warehouse != null)
+			warehouse.AddInventory(newParent, gameObject.GetComponent<WarehouseItem>());
 	}
 
 	public void OnEndDrag(PointerEventData eventData)
 	{
-		if(CanDrag)
+		if (CanDrag)
 			GetComponent<CanvasGroup>().blocksRaycasts = true;
 
-		transform.SetParent(parentToReturnTo);
-		transform.SetSiblingIndex(placeholder.transform.GetSiblingIndex());
+		transform.SetParent(placeholderParent, false);
+		transform.localPosition = Vector3.zero;
 		Destroy(placeholder);
 		foreach (var item in FindObjectsOfType<DropArea>())
 		{

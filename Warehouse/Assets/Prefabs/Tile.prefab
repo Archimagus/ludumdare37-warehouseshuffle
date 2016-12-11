@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 224211627329818084}
   - component: {fileID: 222443364981842722}
   - component: {fileID: 114574952441164564}
-  - component: {fileID: 114605652101381466}
+  - component: {fileID: 114377985773539272}
   m_Layer: 5
   m_Name: Tile
   m_TagString: DropTile
@@ -29,6 +29,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114377985773539272
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1660413718923668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6ddda23732c7c54f9ad6229a8fcc45e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NutralColor: {r: 1, g: 1, b: 1, a: 0.4}
+  ValidDropColor: {r: 0, g: 1, b: 0, a: 0.4}
+  InvalidDropColor: {r: 1, g: 0, b: 0, a: 0.4}
 --- !u!114 &114574952441164564
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -41,7 +55,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.4}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -56,18 +70,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114605652101381466
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1660413718923668}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6ddda23732c7c54f9ad6229a8fcc45e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ChildLimit: 1
 --- !u!222 &222443364981842722
 CanvasRenderer:
   m_ObjectHideFlags: 1

@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Warehouse", "Warehouse.csproj", "{B445A8F6-FA81-2730-3600-7637EA0E50DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Warehouse.Editor", "Warehouse.Editor.csproj", "{07262EC2-4C57-ACF6-8435-EF50C4E403FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B445A8F6-FA81-2730-3600-7637EA0E50DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B445A8F6-FA81-2730-3600-7637EA0E50DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B445A8F6-FA81-2730-3600-7637EA0E50DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B445A8F6-FA81-2730-3600-7637EA0E50DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07262EC2-4C57-ACF6-8435-EF50C4E403FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07262EC2-4C57-ACF6-8435-EF50C4E403FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07262EC2-4C57-ACF6-8435-EF50C4E403FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07262EC2-4C57-ACF6-8435-EF50C4E403FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

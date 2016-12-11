@@ -1,8 +1,15 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class Truck : MonoBehaviour
+public class Truck : MonoBehaviour, IInventoryContainer
 {
+	[Header("SceneObjects")]
+	[SerializeField]
+	private Slider TruckSlider;
+	[SerializeField]
+	private Transform[] _itemAnchors;
+
 	[SerializeField]
 	[ReadOnly]
 	bool _isDeliveryTruck;
@@ -11,8 +18,10 @@ public class Truck : MonoBehaviour
 	[SerializeField]
 	[Range(1, 3)]
 	int _truckSize;
+
 	[SerializeField]
-	Image _truckImage;
+	[ReadOnly]
+	private List<WarehouseItem> _truckInventory;
 
 	enum TruckState
 	{
@@ -26,16 +35,18 @@ public class Truck : MonoBehaviour
 	Animator _slotAnimator;
 
 	float _waitTime;
+	float _maxWaitTime;
 
 	int _deliveryValue;
 
 	public bool IsOffscreen { get { return _currState == TruckState.OffScreen; } }
-    public bool IsDeliveryTruck { get { return _isDeliveryTruck; } set { _isDeliveryTruck = value; } }
+	public bool IsDeliveryTruck { get { return _isDeliveryTruck; } set { _isDeliveryTruck = value; } }
 
 	// Use this for initialization
 	void Start()
 	{
 		_slotAnimator = GetComponentInParent<Animator>();
+		_truckInventory = new List<WarehouseItem>();
 	}
 
 	// Update is called once per frame
@@ -62,8 +73,35 @@ public class Truck : MonoBehaviour
 		if (_randomTruckSize)
 			_truckSize = Random.Range(1, 4);
 
-		_waitTime = _truckSize * 3.0f;
+
+		_truckInventory.Clear();
+
+		if (IsDeliveryTruck)
+		{
+			for (int i = 0; i < _truckSize; i++)
+			{
+				var go = GameManager.Instance.GetWarehouseItem();
+				_truckInventory.Add(go);
+				go.transform.SetParent(_itemAnchors[i], false);
+				go.DisplayTruckGraphic = true;
+
+			}
+		}
+		for (int i = 0; i < _itemAnchors.Length; i++)
+		{
+			_itemAnchors[i].GetComponent<DropArea>().enabled = !IsDeliveryTruck;
+			_itemAnchors[i].GetComponent<Image>().enabled = !IsDeliveryTruck;
+		}
+
+		_maxWaitTime = _waitTime = _truckSize * 3.0f;
+		TruckSlider.value = _waitTime / _maxWaitTime;
+		TruckSlider.gameObject.SetActive(false);
 		_deliveryValue = 0;
+	}
+
+	void RemoveWarehouseItem(WarehouseItem item)
+	{
+
 	}
 
 	public void Arrive()
@@ -72,10 +110,25 @@ public class Truck : MonoBehaviour
 		_currState = TruckState.Arriving;
 		_slotAnimator.SetTrigger("Park");
 		GetComponent<AudioSource>().Play();
+		TruckSlider.gameObject.SetActive(false);
 	}
 
 	public void Leave()
 	{
+		_currState = TruckState.Leaving;
+
+		ProcessPayment();
+
+		TruckSlider.gameObject.SetActive(false);
+
+		for (int i = 0; i < _itemAnchors.Length; i++)
+		{
+			_itemAnchors[i].GetComponent<DropArea>().enabled = false;
+			var draggable = _itemAnchors[i].GetComponentInChildren<Draggable>();
+			if (draggable != null)
+				draggable.CanDrag = false;
+		}
+
 		_currState = TruckState.Leaving;
 		_slotAnimator.SetTrigger("Leave");
 	}
@@ -86,6 +139,7 @@ public class Truck : MonoBehaviour
 		{
 			_currState = TruckState.Waiting;
 			GetComponent<AudioSource>().Stop();
+			TruckSlider.gameObject.SetActive(true);
 		}
 	}
 
@@ -93,11 +147,10 @@ public class Truck : MonoBehaviour
 	{
 		_waitTime -= Time.deltaTime;
 
+		TruckSlider.value = _waitTime / _maxWaitTime;
+
 		if (_waitTime <= 0)
 		{
-			ProcessPayment();
-
-			_currState = TruckState.Leaving;
 			Leave();
 		}
 	}
@@ -105,7 +158,17 @@ public class Truck : MonoBehaviour
 	// Pays the player or penalizes them accordingly
 	void ProcessPayment()
 	{
+		int penaltyAmount = 0;
 
+		for (int i = 0; i < _truckInventory.Count; i++)
+		{
+			penaltyAmount += _truckInventory[i].Value;
+		}
+
+		if (_isDeliveryTruck)
+			GameManager.Instance.AdjustCash(-penaltyAmount);
+		else
+			GameManager.Instance.AdjustCash(penaltyAmount);
 	}
 
 	void Leaving()
@@ -113,7 +176,26 @@ public class Truck : MonoBehaviour
 		if (_slotAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !_slotAnimator.IsInTransition(0))
 		{
 			_currState = TruckState.OffScreen;
-            GameManager.Instance.TruckIsOffscreen(_isDeliveryTruck);
+			GameManager.Instance.TruckIsOffscreen(_isDeliveryTruck);
+
+			for (int i = 0; i < _truckInventory.Count; i++)
+			{
+				_truckInventory[i].transform.SetParent(null);
+				Destroy(_truckInventory[i]);
+			}
+			_truckInventory.Clear();
 		}
+	}
+
+	public void AddInventory(Transform targetTransform, WarehouseItem droppedObject)
+	{
+		droppedObject.DisplayTruckGraphic = true;
+		_truckInventory.Add(droppedObject);
+	}
+
+	public void RemoveInventory(WarehouseItem removedObject)
+	{
+		removedObject.DisplayTruckGraphic = false;
+		_truckInventory.Remove(removedObject);
 	}
 }

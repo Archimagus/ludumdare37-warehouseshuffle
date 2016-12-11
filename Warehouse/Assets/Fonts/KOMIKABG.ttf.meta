@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: d0ddd5a34ff9d7044a9b2f4e2cecbce8
+timeCreated: 1481429055
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Komika Boogie
+  fontNames:
+  - Komika Boogie
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

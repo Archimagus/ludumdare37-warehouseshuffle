@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: b1a7a263e6dbbc548a2e6d42ea2a4586
+timeCreated: 1481429055
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Komika Boss
+  fontNames:
+  - Komika Boss
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

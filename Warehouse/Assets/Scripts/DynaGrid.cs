@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 public enum ExpandDir
 {
 	Left, Up, Right, Down
 }
-public class DynaGrid<T>
+public class DynaGrid<T> : IEnumerable<T>
 {
 	public int Rows { get; private set; }
 	public int Cols { get; private set; }
@@ -88,5 +90,21 @@ public class DynaGrid<T>
 			default:
 				throw new ArgumentOutOfRangeException("dir", dir, null);
 		}
+	}
+
+	public IEnumerator<T> GetEnumerator()
+	{
+		for (int r = 0; r < Rows - 1; r++)
+		{
+			for (int c = 0; c < Cols; c++)
+			{
+				yield return _grid[r, c];
+			}
+		}
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return GetEnumerator();
 	}
 }

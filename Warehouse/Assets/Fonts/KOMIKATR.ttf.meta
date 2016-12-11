@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: b26586d630ef67044a509f88575fe487
+timeCreated: 1481429055
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Komika Tread
+  fontNames:
+  - Komika Tread
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
