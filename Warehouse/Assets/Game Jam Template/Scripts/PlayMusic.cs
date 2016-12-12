@@ -44,7 +44,7 @@ public class PlayMusic : MonoBehaviour
 	}
 
 	//Used if running the game in a single scene, takes an integer music source allowing you to choose a clip by number and play.
-	public void PlaySelectedMusic(int musicChoice)
+	public void PlaySelectedMusic(int musicChoice, float fadeInTime)
 	{
 
 		//This switch looks at the integer parameter musicChoice to decide which music clip to play.
@@ -59,6 +59,8 @@ public class PlayMusic : MonoBehaviour
 				musicSource.clip = mainMusic;
 				break;
 		}
+		//Fade up the volume very quickly, over resetTime seconds (.01 by default)
+		FadeUp(Mathf.Max(fadeInTime));
 		//Play the selected clip
 		musicSource.Play();
 	}

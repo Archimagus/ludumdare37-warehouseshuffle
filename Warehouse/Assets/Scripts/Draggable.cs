@@ -40,7 +40,7 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
 		placeholderParent = parentToReturnTo = transform.parent;
 		placeholder = Instantiate(_placeholderPrefab);
-		placeholder.transform.SetParent(placeholderParent);
+		placeholder.transform.SetParent(placeholderParent, false);
 		placeholder.transform.SetSiblingIndex(transform.GetSiblingIndex());
 		var phLayout = placeholder.GetComponent<LayoutElement>();
 		phLayout.flexibleWidth = 0;
@@ -63,10 +63,6 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 			eventData.pointerDrag = null;
 			return;
 		}
-		foreach (var item in FindObjectsOfType<DropArea>())
-		{
-			item.HilightIfDroppable(this);
-		}
 
 		transform.position = eventData.position;
 
@@ -78,19 +74,21 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 	}
 	public void DroppedOn(Transform newParent)
 	{
-		var container = parentToReturnTo.GetComponentInParent<IInventoryContainer>();
-		if (container != null)
-			container.RemoveInventory(Item);
-
+		var warehouse = parentToReturnTo.GetComponentInParent<IInventoryContainer>();
+		if (warehouse != null)
+			warehouse.RemoveInventory(Item);
 
 		parentToReturnTo = newParent;
+
+		if (CanDrag)
+			GetComponent<CanvasGroup>().blocksRaycasts = true;
 
 
 		Destroy(placeholder);
 
-		container = newParent.GetComponentInParent<IInventoryContainer>();
-		if (container != null)
-			container.AddInventory(newParent, Item);
+		warehouse = newParent.GetComponentInParent<IInventoryContainer>();
+		if (warehouse != null)
+			warehouse.AddInventory(newParent, Item);
 	}
 
 	public void OnEndDrag(PointerEventData eventData)
@@ -98,9 +96,6 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 		Item.DisplayTruckGraphic = parentToReturnTo.GetComponent<Truck>() != null;
 		transform.SetParent(parentToReturnTo, false);
 		transform.localPosition = Vector3.zero;
-
-		if (CanDrag)
-			GetComponent<CanvasGroup>().blocksRaycasts = true;
 
 		foreach (var item in FindObjectsOfType<DropArea>())
 		{

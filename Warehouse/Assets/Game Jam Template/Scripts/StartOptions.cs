@@ -23,9 +23,11 @@ public class StartOptions : MonoBehaviour
 	public AnimationClip fadeAlphaAnimationClip;        //Animation clip fading out UI elements alpha
 
 
+
 	private PlayMusic playMusic;                                        //Reference to PlayMusic script
 	public float musicFadeInTime = .01f;                                 //Very short fade time (10 milliseconds) to start playing music immediately without a click/glitch
 	private ShowPanels showPanels;                                      //Reference to ShowPanels script on UI GameObject, to show and hide panels
+
 
 
 	void Awake()
@@ -51,10 +53,10 @@ public class StartOptions : MonoBehaviour
 		if (changeScenes)
 		{
 			//Use invoke to delay calling of LoadDelayed by half the length of fadeColorAnimationClip
-			Invoke("LoadDelayed", fadeColorAnimationClip.length * .5f);
+			Invoke("LoadDelayed", fadeColorAnimationClip.length);
 
 			//Set the trigger of Animator animColorFade to start transition to the FadeToOpaque state.
-			animColorFade.SetTrigger("fade");
+			FadeOut();
 		}
 
 		//If changeScenes is false, call StartGameInScene
@@ -66,8 +68,44 @@ public class StartOptions : MonoBehaviour
 
 	}
 
+	void FadeOut()
+	{
+		animColorFade.gameObject.SetActive(true);
+		animColorFade.SetTrigger("fade");
+	}
+	void FadeIn()
+	{
+		animColorFade.gameObject.SetActive(true);
+		animColorFade.SetTrigger("Unfade");
+		Invoke("doneFading", fadeAlphaAnimationClip.length);
+	}
+	void doneFading()
+	{
+		animColorFade.gameObject.SetActive(false);
+	}
+	void ReturnToMenu()
+	{
+		playMusic.PlaySelectedMusic(0, musicFadeInTime);
+		if (PlayerPrefs.HasKey("GameState") && PlayerPrefs.GetString("GameState") == "GameOver")
+		{
+			showPanels.HideMenu();
+			showPanels.ShowGameOverPanel();
+			PlayerPrefs.DeleteKey("GameState");
+		}
+		FadeIn();
+
+	}
+
+	public void HideGameoverPanel()
+	{
+		showPanels.HideGameOverPanel();
+		showPanels.ShowMenu();
+		FadeIn();
+	}
+
 	void OnEnable()
 	{
+		ReturnToMenu();
 		SceneManager.sceneLoaded += SceneWasLoaded;
 	}
 
@@ -99,6 +137,7 @@ public class StartOptions : MonoBehaviour
 		SceneManager.LoadScene(sceneToStart);
 	}
 
+
 	public void HideDelayed()
 	{
 		//Hide the main menu UI element after fading out menu for start game in scene
@@ -118,17 +157,19 @@ public class StartOptions : MonoBehaviour
 			Invoke("PlayNewMusic", fadeAlphaAnimationClip.length);
 		}
 		//Set trigger for animator to start animation fading out Menu UI
-		animMenuAlpha.SetTrigger("fade");
+		FadeOut();
 		Invoke("HideDelayed", fadeAlphaAnimationClip.length);
-		Debug.Log("Game started in same scene! Put your game starting stuff here.");
+		Invoke("ShowDelayed", fadeAlphaAnimationClip.length);
 	}
 
+	void ShowDelayed()
+	{
+		showPanels.ShowGamePanel();
+	}
 
 	public void PlayNewMusic()
 	{
-		//Fade up music nearly instantly without a click 
-		playMusic.FadeUp(musicFadeInTime);
 		//Play music clip assigned to mainMusic in PlayMusic script
-		playMusic.PlaySelectedMusic(1);
+		playMusic.PlaySelectedMusic(1, musicFadeInTime);
 	}
 }

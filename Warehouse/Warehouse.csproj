@@ -89,6 +89,7 @@
     <Compile Include="Assets\Game Jam Template\Scripts\SetAudioLevels.cs" />
     <Compile Include="Assets\Game Jam Template\Scripts\ShowPanels.cs" />
     <Compile Include="Assets\Game Jam Template\Scripts\StartOptions.cs" />
+    <Compile Include="Assets\PauseGame.cs" />
     <Compile Include="Assets\Scripts\Draggable.cs" />
     <Compile Include="Assets\Scripts\DropArea.cs" />
     <Compile Include="Assets\Scripts\DynaGrid.cs" />

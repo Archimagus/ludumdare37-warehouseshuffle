@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -6,6 +7,8 @@ public class GameManager : MonoBehaviour
 	public GameObject[] PickupTruckSlots;
 	public WarehouseItem[] WarehouseItems;
 	public UnityEngine.UI.Text MoneyText;
+	public Animator fader;
+	public AnimationClip fadeAlphaAnimationClip;        //Animation clip fading out UI elements alpha
 
 	[Header("System Variables")]
 	[SerializeField]
@@ -62,7 +65,17 @@ public class GameManager : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
+		var playMusic = GetComponent<PlayMusic>();
+		playMusic.PlaySelectedMusic(1, 0.01f);
+		playMusic.FadeUp(fadeAlphaAnimationClip.length);
+		fader.gameObject.SetActive(true);
+		fader.SetTrigger("Unfade");
+		Invoke("doneFading", fadeAlphaAnimationClip.length);
 		Init();
+	}
+	void doneFading()
+	{
+		fader.gameObject.SetActive(true);
 	}
 
 	// Update is called once per frame
@@ -156,5 +169,18 @@ public class GameManager : MonoBehaviour
 	{
 		_playerCash += amount;
 		MoneyText.text = _playerCash.ToString("C");
+		if (_playerCash <= 0)
+		{
+			PlayerPrefs.SetString("GameState", "GameOver");
+			fader.gameObject.SetActive(true);
+			fader.SetTrigger("fade");
+			GetComponent<PlayMusic>().FadeDown(fadeAlphaAnimationClip.length);
+			Invoke("Gameover", fadeAlphaAnimationClip.length);
+		}
+	}
+
+	public void Gameover()
+	{
+		SceneManager.LoadScene(0);
 	}
 }

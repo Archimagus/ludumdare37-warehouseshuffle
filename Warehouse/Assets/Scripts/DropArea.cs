@@ -20,7 +20,7 @@ public class DropArea : MonoBehaviour, IPointerEnterHandler, IDropHandler, IPoin
 			var draggable = eventData.pointerDrag.GetComponent<Draggable>();
 			if (draggable != null)
 			{
-				if (HilightIfDroppable(draggable))
+				if (Parent.IsValidDrop(transform, draggable.Item))
 				{
 					draggable.placeholderParent = transform;
 				}
@@ -57,7 +57,7 @@ public class DropArea : MonoBehaviour, IPointerEnterHandler, IDropHandler, IPoin
 
 	virtual public bool HilightIfDroppable(Draggable draggable)
 	{
-		if (Parent.IsValidDrop(transform, draggable.Item) && (ValidDropID == 0 || ValidDropID == draggable.Item.GetInstanceID()))
+		if (ValidDropID == 0 || ValidDropID == draggable.Item.GetInstanceID())
 		{
 			GetComponent<Image>().color = ValidDropColor;
 			return true;

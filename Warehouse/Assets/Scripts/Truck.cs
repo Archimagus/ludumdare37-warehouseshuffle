@@ -161,7 +161,11 @@ public class Truck : MonoBehaviour, IInventoryContainer
 	}
 	bool AnimationFinished
 	{
-		get { return _slotAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !_slotAnimator.IsInTransition(0); }
+		get
+		{
+			return _slotAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1.0f && !_slotAnimator.IsInTransition(0);
+		}
+
 	}
 	// Pays the player or penalizes them accordingly
 	void ProcessPayment()
@@ -183,16 +187,21 @@ public class Truck : MonoBehaviour, IInventoryContainer
 	{
 		_truckInventory.Add(droppedObject);
 		if (_truckInventory.Count == 3)
-			Leave();
+			StartCoroutine(delayedLeave());
+
 	}
 
 	public void RemoveInventory(WarehouseItem removedObject)
 	{
 		_truckInventory.Remove(removedObject);
 		if (_truckInventory.Count == 0)
-			Leave();
+			StartCoroutine(delayedLeave());
 	}
-
+	System.Collections.IEnumerator delayedLeave()
+	{
+		yield return null;
+		Leave();
+	}
 	public bool IsValidDrop(Transform targetTx, WarehouseItem item)
 	{
 		return (!IsDeliveryTruck && targetTx.childCount == 0 && _currState == TruckState.Waiting);

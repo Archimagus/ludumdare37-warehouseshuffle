@@ -34,7 +34,7 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 	[SerializeField]
 	private int _gridElementSize = 64;
 	[SerializeField]
-	private int _gridSpacing = 1;
+	private float _gridSpacing = 1;
 	[SerializeField]
 	private int _borderSize = 80;
 
@@ -48,7 +48,7 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 
 	public bool CanUpgrade(ExpandDir direction)
 	{
-		return _upgradeCounts[(int)direction] <= _maxUpgradesPerDirection;
+		return _upgradeCounts[(int)direction] < _maxUpgradesPerDirection;
 	}
 
 	DynaGrid<int> _spaces;
@@ -144,7 +144,7 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 	{
 		var tx = _floorImage.rectTransform;
 		float startx = _gridSpacing + _gridElementSize / 2f;
-		float starty = -(_gridSpacing + _gridElementSize / 2f);
+		float starty = _gridSpacing + _gridElementSize / 2f;
 		for (int r = 0; r < _spaces.Rows; r++)
 		{
 			for (int c = 0; c < _spaces.Cols; c++)
@@ -161,7 +161,7 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 				t.ValidDropID = id;
 				var rt = t.GetComponent<RectTransform>();
 				rt.localPosition = new Vector3(startx + ((_gridElementSize + _gridSpacing) * c),
-					starty - ((_gridElementSize + _gridSpacing) * r));
+												starty + ((_gridElementSize + _gridSpacing) * r));
 				rt.SetAsLastSibling();
 			}
 		}
