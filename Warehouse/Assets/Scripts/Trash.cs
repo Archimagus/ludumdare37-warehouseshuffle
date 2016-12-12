@@ -9,6 +9,7 @@ public class Trash : MonoBehaviour, IInventoryContainer
 	public void AddInventory(Transform targetTransform, WarehouseItem droppedObject)
 	{
 		GameManager.Instance.AdjustCash(-droppedObject.Value / 2);
+		GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.TrashCrumple);
 		var ph = droppedObject.GetComponent<Draggable>().placeholder;
 		if (ph != null)
 			Destroy(ph);

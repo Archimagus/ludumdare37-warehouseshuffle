@@ -242,9 +242,9 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24301952, guid: 0ac7fb39e445048d89688f69c2a1839a,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: 0b6ac29ea55756f4fbf00dc4bedb6849, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -349,6 +349,8 @@ MonoBehaviour:
   _isDeliveryTruck: 0
   _randomTruckSize: 1
   _truckSize: 1
+  _backingUp: {fileID: 8300000, guid: 6b41e11729da1b94ab7646f3d225b1b1, type: 3}
+  _drivingOff: {fileID: 8300000, guid: caed273d036ca3d489f588bee25bd7a9, type: 3}
   _truckInventory: []
 --- !u!114 &114019737959649300
 MonoBehaviour:

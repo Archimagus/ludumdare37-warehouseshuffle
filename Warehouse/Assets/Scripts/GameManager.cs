@@ -44,8 +44,30 @@ public class GameManager : MonoBehaviour
 	[SerializeField]
 	[ReadOnly]
 	int _currPickupTrucks;
+	[SerializeField]
+	AudioSource _sfxSource;
+	[SerializeField]
+	AudioClip _moneyKaching;
+	[SerializeField]
+	AudioClip _boxThud;
+	[SerializeField]
+	AudioClip _buttonBonk;
+	[SerializeField]
+	AudioClip _trashCrumple;
+	[SerializeField]
+	AudioClip _mouseClick;
+	[SerializeField]
+	AudioClip _errorBeep;
 
-
+	public enum SoundEffects
+	{
+		MoneyKaching,
+		BoxThud,
+		ButtonBonk,
+		TrashCrumple,
+		MouseClick,
+		ErrorBeep,
+	}
 
 	private static GameManager _instance;
 	public static GameManager Instance
@@ -68,6 +90,7 @@ public class GameManager : MonoBehaviour
 		var playMusic = GetComponent<PlayMusic>();
 		playMusic.PlaySelectedMusic(1, 0.01f);
 		playMusic.FadeUp(fadeAlphaAnimationClip.length);
+		_sfxSource = GetComponent<AudioSource>();
 		fader.gameObject.SetActive(true);
 		fader.SetTrigger("Unfade");
 		Invoke("doneFading", fadeAlphaAnimationClip.length);
@@ -169,6 +192,12 @@ public class GameManager : MonoBehaviour
 	{
 		_playerCash += amount;
 		MoneyText.text = _playerCash.ToString("C");
+
+		if (amount > 0)
+			PlayAudioClip(SoundEffects.MoneyKaching);
+		else
+			PlayAudioClip(SoundEffects.ErrorBeep);
+
 		if (_playerCash <= 0)
 		{
 			PlayerPrefs.SetString("GameState", "GameOver");
@@ -182,5 +211,59 @@ public class GameManager : MonoBehaviour
 	public void Gameover()
 	{
 		SceneManager.LoadScene(0);
+	}
+
+	public void PlayAudioClip(SoundEffects sound)
+	{
+		switch (sound)
+		{
+			case SoundEffects.MoneyKaching:
+				_sfxSource.PlayOneShot(_moneyKaching);
+				break;
+			case SoundEffects.BoxThud:
+				_sfxSource.PlayOneShot(_boxThud);
+				break;
+			case SoundEffects.ButtonBonk:
+				_sfxSource.PlayOneShot(_buttonBonk);
+				break;
+			case SoundEffects.TrashCrumple:
+				_sfxSource.PlayOneShot(_trashCrumple);
+				break;
+			case SoundEffects.MouseClick:
+				_sfxSource.PlayOneShot(_mouseClick);
+				break;
+			case SoundEffects.ErrorBeep:
+				_sfxSource.PlayOneShot(_errorBeep);
+				break;
+			default:
+				break;
+		}
+	}
+
+	public void PlayAudioClip(string sound)
+	{
+		switch (sound)
+		{
+			case "kaching":
+				_sfxSource.PlayOneShot(_moneyKaching);
+				break;
+			case "thud":
+				_sfxSource.PlayOneShot(_boxThud);
+				break;
+			case "bonk":
+				_sfxSource.PlayOneShot(_buttonBonk);
+				break;
+			case "crumple":
+				_sfxSource.PlayOneShot(_trashCrumple);
+				break;
+			case "click":
+				_sfxSource.PlayOneShot(_mouseClick);
+				break;
+			case "error":
+				_sfxSource.PlayOneShot(_errorBeep);
+				break;
+			default:
+				break;
+		}
 	}
 }

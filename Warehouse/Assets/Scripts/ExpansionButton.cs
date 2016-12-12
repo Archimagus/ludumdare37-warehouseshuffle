@@ -21,15 +21,19 @@ public class ExpansionButton : MonoBehaviour
 		{
 			case ExpandDir.Left:
 				_targetWarehouse.ExpandLeft();
+				GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.ButtonBonk);
 				break;
 			case ExpandDir.Up:
 				_targetWarehouse.ExpandUp();
+				GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.ButtonBonk);
 				break;
 			case ExpandDir.Right:
 				_targetWarehouse.ExpandRight();
+				GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.ButtonBonk);
 				break;
 			case ExpandDir.Down:
 				_targetWarehouse.ExpandDown();
+				GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.ButtonBonk);
 				break;
 			default:
 				throw new ArgumentOutOfRangeException();

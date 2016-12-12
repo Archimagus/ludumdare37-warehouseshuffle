@@ -18,6 +18,10 @@ public class Truck : MonoBehaviour, IInventoryContainer
 	[SerializeField]
 	[Range(1, 3)]
 	int _truckSize;
+	[SerializeField]
+	AudioClip _backingUp;
+	[SerializeField]
+	AudioClip _drivingOff;
 
 	[SerializeField]
 	[ReadOnly]
@@ -103,13 +107,14 @@ public class Truck : MonoBehaviour, IInventoryContainer
 		Init();
 		_currState = TruckState.Arriving;
 		_slotAnimator.SetTrigger("Park");
-		GetComponent<AudioSource>().Play();
+		GetComponent<AudioSource>().PlayOneShot(_backingUp);
 		TruckSlider.gameObject.SetActive(false);
 	}
 
 	public void Leave()
 	{
 		_currState = TruckState.Leaving;
+		GetComponent<AudioSource>().PlayOneShot(_drivingOff);
 
 		TruckSlider.gameObject.SetActive(false);
 
@@ -157,6 +162,7 @@ public class Truck : MonoBehaviour, IInventoryContainer
 				Destroy(_truckInventory[i].gameObject);
 			}
 			_truckInventory.Clear();
+			GetComponent<AudioSource>().Stop();
 		}
 	}
 	bool AnimationFinished
@@ -190,6 +196,11 @@ public class Truck : MonoBehaviour, IInventoryContainer
 			StartCoroutine(delayedLeave());
 
 	}
+	System.Collections.IEnumerator delayedLeave()
+	{
+		yield return null;
+		Leave();
+	}
 
 	public void RemoveInventory(WarehouseItem removedObject)
 	{
@@ -197,11 +208,7 @@ public class Truck : MonoBehaviour, IInventoryContainer
 		if (_truckInventory.Count == 0)
 			StartCoroutine(delayedLeave());
 	}
-	System.Collections.IEnumerator delayedLeave()
-	{
-		yield return null;
-		Leave();
-	}
+
 	public bool IsValidDrop(Transform targetTx, WarehouseItem item)
 	{
 		return (!IsDeliveryTruck && targetTx.childCount == 0 && _currState == TruckState.Waiting);

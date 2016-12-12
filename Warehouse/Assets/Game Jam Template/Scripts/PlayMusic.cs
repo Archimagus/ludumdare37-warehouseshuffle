@@ -5,11 +5,12 @@ using UnityEngine.SceneManagement;
 public class PlayMusic : MonoBehaviour
 {
 
-
+	public AudioClip buttonBonk;                    //Assign Audioclip for button sound effect
 	public AudioClip titleMusic;                    //Assign Audioclip for title music loop
 	public AudioClip mainMusic;                     //Assign Audioclip for main 
 	public AudioMixerSnapshot volumeDown;           //Reference to Audio mixer snapshot in which the master volume of main mixer is turned down
 	public AudioMixerSnapshot volumeUp;             //Reference to Audio mixer snapshot in which the master volume of main mixer is turned up
+	public AudioSource sfxSource;
 
 
 	private AudioSource musicSource;                //Reference to the AudioSource which plays music
@@ -20,6 +21,11 @@ public class PlayMusic : MonoBehaviour
 		//Get a component reference to the AudioSource attached to the UI game object
 		musicSource = GetComponent<AudioSource>();
 		//Call the PlayLevelMusic function to start playing music
+	}
+
+	public void PlayButtonBonk()
+	{
+		sfxSource.PlayOneShot(buttonBonk);
 	}
 
 
