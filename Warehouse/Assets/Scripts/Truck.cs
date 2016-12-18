@@ -88,6 +88,7 @@ public class Truck : MonoBehaviour, IInventoryContainer
 				var go = GameManager.Instance.GetWarehouseItem();
 				_truckInventory.Add(go);
 				go.transform.SetParent(_itemAnchors[i], false);
+				go.transform.localPosition = Vector3.zero;
 				go.DisplayTruckGraphic = true;
 
 			}
@@ -205,12 +206,22 @@ public class Truck : MonoBehaviour, IInventoryContainer
 	public void RemoveInventory(WarehouseItem removedObject)
 	{
 		_truckInventory.Remove(removedObject);
-		if (_truckInventory.Count == 0)
+		if (IsDeliveryTruck && _truckInventory.Count == 0)
 			StartCoroutine(delayedLeave());
 	}
 
 	public bool IsValidDrop(Transform targetTx, WarehouseItem item)
 	{
-		return (!IsDeliveryTruck && targetTx.childCount == 0 && _currState == TruckState.Waiting);
+		if (IsDeliveryTruck)
+			return false;
+		if (_currState != TruckState.Waiting)
+			return false;
+		if (targetTx.childCount == 0)
+			return true;
+		if (targetTx.GetChild(0).name == "DragPlaceholder(Clone)")
+			return true;
+
+		return false;
+
 	}
 }

@@ -21,7 +21,7 @@ public class StartOptions : MonoBehaviour
 	public AnimationClip fadeColorAnimationClip;        //Animation clip fading to color (black default) when changing scenes
 	[HideInInspector]
 	public AnimationClip fadeAlphaAnimationClip;        //Animation clip fading out UI elements alpha
-
+	public SetAudioLevels SetAudioLevels;
 
 
 	private PlayMusic playMusic;                                        //Reference to PlayMusic script
@@ -39,6 +39,11 @@ public class StartOptions : MonoBehaviour
 		playMusic = GetComponent<PlayMusic>();
 	}
 
+	void Start()
+	{
+		SetAudioLevels.LoadVolumes();
+		ReturnToMenu();
+	}
 
 	public void StartButtonClicked()
 	{
@@ -105,7 +110,6 @@ public class StartOptions : MonoBehaviour
 
 	void OnEnable()
 	{
-		ReturnToMenu();
 		SceneManager.sceneLoaded += SceneWasLoaded;
 	}
 

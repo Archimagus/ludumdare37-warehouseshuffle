@@ -74,11 +74,11 @@ public class DynaGrid<T> : IEnumerable<T>
 				{
 					Rows++;
 					var g = new T[Rows, Cols];
-					for (int r = 1; r < Rows; r++)
+					for (int r = 0; r < Rows - 1; r++)
 					{
 						for (int c = 0; c < Cols; c++)
 						{
-							g[r, c] = _grid[r - 1, c];
+							g[r, c] = _grid[r, c];
 						}
 					}
 					_grid = g;
@@ -88,11 +88,11 @@ public class DynaGrid<T> : IEnumerable<T>
 				{
 					Rows++;
 					var g = new T[Rows, Cols];
-					for (int r = 0; r < Rows - 1; r++)
+					for (int r = 1; r < Rows; r++)
 					{
 						for (int c = 0; c < Cols; c++)
 						{
-							g[r, c] = _grid[r, c];
+							g[r, c] = _grid[r - 1, c];
 						}
 					}
 					_grid = g;

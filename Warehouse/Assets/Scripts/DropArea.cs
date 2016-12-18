@@ -35,7 +35,7 @@ public class DropArea : MonoBehaviour, IPointerEnterHandler, IDropHandler, IPoin
 			var draggable = eventData.pointerDrag.GetComponent<Draggable>();
 			if (draggable != null)
 			{
-				if (HilightIfDroppable(draggable))
+				if (Parent.IsValidDrop(transform, draggable.GetComponent<WarehouseItem>()))
 				{
 					draggable.DroppedOn(transform);
 				}

@@ -45,6 +45,7 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 	public int VerticalUpgradeCost { get { return _tiles.Cols * _costPerExpansionSquare; } }
 
 	private int[] _upgradeCounts = new int[4];
+	private int _upgradeCount;
 
 	public bool CanUpgrade(ExpandDir direction)
 	{
@@ -63,6 +64,11 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 
 	public void ExpandRight()
 	{
+		if (GameManager.Instance.Cash <= HorizontalUpgradeCost)
+		{
+			GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.ErrorBeep);
+			return;
+		}
 		GameManager.Instance.AdjustCash(-HorizontalUpgradeCost);
 		var offset = _frameRect.offsetMax;
 		offset.x += _gridElementSize + _gridSpacing;
@@ -70,11 +76,19 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 		_spaces.Expand(ExpandDir.Right);
 		_tiles.Expand(ExpandDir.Right);
 		_upgradeCounts[(int)ExpandDir.Right]++;
+		_upgradeCount++;
+		GameManager.Instance.SetNumUpgrades(_upgradeCount);
+		GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.MoneyKaching);
 		RepopulateGrid();
 	}
 
 	public void ExpandLeft()
 	{
+		if (GameManager.Instance.Cash <= HorizontalUpgradeCost)
+		{
+			GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.ErrorBeep);
+			return;
+		}
 		GameManager.Instance.AdjustCash(-HorizontalUpgradeCost);
 		var offset = _frameRect.offsetMin;
 		offset.x -= _gridElementSize + _gridSpacing;
@@ -82,11 +96,19 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 		_spaces.Expand(ExpandDir.Left);
 		_tiles.Expand(ExpandDir.Left);
 		_upgradeCounts[(int)ExpandDir.Left]++;
+		_upgradeCount++;
+		GameManager.Instance.SetNumUpgrades(_upgradeCount);
+		GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.MoneyKaching);
 		RepopulateGrid();
 	}
 
 	public void ExpandUp()
 	{
+		if (GameManager.Instance.Cash <= VerticalUpgradeCost)
+		{
+			GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.ErrorBeep);
+			return;
+		}
 		GameManager.Instance.AdjustCash(-VerticalUpgradeCost);
 		var offset = _frameRect.offsetMax;
 		offset.y += _gridElementSize + _gridSpacing;
@@ -94,11 +116,19 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 		_spaces.Expand(ExpandDir.Up);
 		_tiles.Expand(ExpandDir.Up);
 		_upgradeCounts[(int)ExpandDir.Up]++;
+		_upgradeCount++;
+		GameManager.Instance.SetNumUpgrades(_upgradeCount);
+		GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.MoneyKaching);
 		RepopulateGrid();
 	}
 
 	public void ExpandDown()
 	{
+		if (GameManager.Instance.Cash <= VerticalUpgradeCost)
+		{
+			GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.ErrorBeep);
+			return;
+		}
 		GameManager.Instance.AdjustCash(-VerticalUpgradeCost);
 		var offset = _frameRect.offsetMin;
 		offset.y -= _gridElementSize + _gridSpacing;
@@ -106,6 +136,9 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 		_spaces.Expand(ExpandDir.Down);
 		_tiles.Expand(ExpandDir.Down);
 		_upgradeCounts[(int)ExpandDir.Down]++;
+		_upgradeCount++;
+		GameManager.Instance.SetNumUpgrades(_upgradeCount);
+		GameManager.Instance.PlayAudioClip(GameManager.SoundEffects.MoneyKaching);
 		RepopulateGrid();
 	}
 
@@ -115,8 +148,18 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 		var row = index / _spaces.Cols;
 		var col = index % _spaces.Cols;
 		var itemId = item.GetInstanceID();
-		var id = _spaces[row, col];
-		return id == 0 || id == itemId;
+		for (int i = 0; i < item.BlockSpaces.Length; i++)
+		{
+			var offset = item.BlockSpaces[i];
+			var r = row + offset.y;
+			var c = col + offset.x;
+			if (r < 0 || r >= _spaces.Rows || c < 0 || c >= _spaces.Cols)
+				return false;
+			var id = _spaces[r, c];
+			if (id != 0 && id != itemId)
+				return false;
+		}
+		return true;
 	}
 	public void RemoveInventory(WarehouseItem removedObject)
 	{
@@ -135,9 +178,21 @@ public class Warehouse : MonoBehaviour, IInventoryContainer
 	{
 		var id = droppedObject.GetInstanceID();
 		var index = targetTransform.GetSiblingIndex();
-		var r = index / _spaces.Cols;
-		var c = index % _spaces.Cols;
-		_spaces[r, c] = id;
+		var row = index / _spaces.Cols;
+		var col = index % _spaces.Cols;
+		for (int i = 0; i < droppedObject.BlockSpaces.Length; i++)
+		{
+			var offset = droppedObject.BlockSpaces[i];
+			var r = row + offset.y;
+			var c = col + offset.x;
+			if (r < 0 || r >= _spaces.Rows || c < 0 || c >= _spaces.Cols)
+			{
+				Debug.LogFormat(droppedObject, "Index out of range r{0},c{1})", r, c);
+				return;
+			}
+			_spaces[r, c] = id;
+		}
+
 		RepopulateGrid();
 	}
 	public void RepopulateGrid()

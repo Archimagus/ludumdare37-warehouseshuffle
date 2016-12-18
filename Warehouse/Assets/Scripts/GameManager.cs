@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 	public UnityEngine.UI.Text MoneyText;
 	public Animator fader;
 	public AnimationClip fadeAlphaAnimationClip;        //Animation clip fading out UI elements alpha
+	public SetAudioLevels SetAudioLevels;
 
 	[Header("System Variables")]
 	[SerializeField]
@@ -27,8 +28,10 @@ public class GameManager : MonoBehaviour
 	[Space]
 	[SerializeField]
 	int _maxDeliveryTrucks = 3;
+	private int _realMaxDeliveryTrucks;
 	[SerializeField]
 	int _maxPickupTrucks = 3;
+	private int _realMaxPickupTrucks;
 	[SerializeField]
 	int _playerCash = 1000;
 	[Header("ReadOnly")]
@@ -59,6 +62,8 @@ public class GameManager : MonoBehaviour
 	[SerializeField]
 	AudioClip _errorBeep;
 
+	public int Cash { get { return _playerCash; } }
+
 	public enum SoundEffects
 	{
 		MoneyKaching,
@@ -87,10 +92,10 @@ public class GameManager : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
+		SetAudioLevels.LoadVolumes();
 		var playMusic = GetComponent<PlayMusic>();
 		playMusic.PlaySelectedMusic(1, 0.01f);
 		playMusic.FadeUp(fadeAlphaAnimationClip.length);
-		_sfxSource = GetComponent<AudioSource>();
 		fader.gameObject.SetActive(true);
 		fader.SetTrigger("Unfade");
 		Invoke("doneFading", fadeAlphaAnimationClip.length);
@@ -111,6 +116,8 @@ public class GameManager : MonoBehaviour
 	{
 		_currDeliveryTrucks = 0;
 		_currPickupTrucks = 0;
+		_realMaxDeliveryTrucks = _maxDeliveryTrucks;
+		_realMaxPickupTrucks = _maxPickupTrucks;
 		MoneyText.text = _playerCash.ToString("C");
 	}
 
@@ -120,6 +127,20 @@ public class GameManager : MonoBehaviour
 			_currDeliveryTrucks--;
 		else
 			_currPickupTrucks--;
+	}
+
+	public void SetNumUpgrades(int upgradeCount)
+	{
+		if (upgradeCount % 4 == 0)
+			_realMaxPickupTrucks++;
+		else if (upgradeCount % 2 == 0)
+			_realMaxDeliveryTrucks++;
+
+		_deliveryTruckSpawnDelay *= 0.9f;
+		_pickupTruckSpawnDelay *= 0.9f;
+
+		Debug.Log("Delivery: " + _realMaxDeliveryTrucks + "\nPickup: " + _realMaxPickupTrucks);
+		Debug.Log("Delivery: " + _deliveryTruckSpawnDelay + "\nPickup: " + _pickupTruckSpawnDelay);
 	}
 
 	void SpawnTruck()
@@ -134,7 +155,7 @@ public class GameManager : MonoBehaviour
 
 			if (_deliveryTruckSpawnTimer <= 0.0f)
 			{
-				if (_currDeliveryTrucks < _maxDeliveryTrucks)
+				if (_currDeliveryTrucks < _realMaxDeliveryTrucks)
 				{
 					Truck t = DeliveryTruckSlots[Random.Range(0, DeliveryTruckSlots.Length)].GetComponentInChildren<Truck>();
 					t.IsDeliveryTruck = true;
@@ -163,7 +184,7 @@ public class GameManager : MonoBehaviour
 
 			if (_pickupTruckSpawnTimer <= 0.0f)
 			{
-				if (_currPickupTrucks < _maxPickupTrucks)
+				if (_currPickupTrucks < _realMaxPickupTrucks)
 				{
 					Truck t = PickupTruckSlots[Random.Range(0, PickupTruckSlots.Length)].GetComponentInChildren<Truck>();
 					t.IsDeliveryTruck = false;
@@ -195,7 +216,7 @@ public class GameManager : MonoBehaviour
 
 		if (amount > 0)
 			PlayAudioClip(SoundEffects.MoneyKaching);
-		else
+		else if (amount < 0)
 			PlayAudioClip(SoundEffects.ErrorBeep);
 
 		if (_playerCash <= 0)
@@ -236,6 +257,7 @@ public class GameManager : MonoBehaviour
 				_sfxSource.PlayOneShot(_errorBeep);
 				break;
 			default:
+				Debug.LogError("No sound named " + sound);
 				break;
 		}
 	}
@@ -263,6 +285,7 @@ public class GameManager : MonoBehaviour
 				_sfxSource.PlayOneShot(_errorBeep);
 				break;
 			default:
+				Debug.LogError("No sound named " + sound);
 				break;
 		}
 	}

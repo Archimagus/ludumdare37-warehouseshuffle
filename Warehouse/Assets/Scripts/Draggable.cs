@@ -11,6 +11,7 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 	public Transform placeholderParent { get; set; }
 	public GameObject placeholder { get; set; }
 	public WarehouseItem Item { get; set; }
+	private static bool _somethingDragging = false;
 	private bool _canDrag = true;
 	public bool CanDrag
 	{
@@ -18,11 +19,12 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 		set
 		{
 			_canDrag = value;
-			GetComponent<CanvasGroup>().blocksRaycasts = _canDrag;
-
 		}
 	}
-
+	void Update()
+	{
+		GetComponent<CanvasGroup>().blocksRaycasts = _canDrag && !_somethingDragging;
+	}
 	void Start()
 	{
 		Item = GetComponent<WarehouseItem>();
@@ -37,7 +39,7 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 			eventData.pointerDrag = null;
 			return;
 		}
-
+		_somethingDragging = true;
 		placeholderParent = parentToReturnTo = transform.parent;
 		placeholder = Instantiate(_placeholderPrefab);
 		placeholder.transform.SetParent(placeholderParent, false);
@@ -80,11 +82,7 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
 		parentToReturnTo = newParent;
 
-		if (CanDrag)
-			GetComponent<CanvasGroup>().blocksRaycasts = true;
 
-
-		Destroy(placeholder);
 
 		warehouse = newParent.GetComponentInParent<IInventoryContainer>();
 		if (warehouse != null)
@@ -93,7 +91,11 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
 	public void OnEndDrag(PointerEventData eventData)
 	{
-		Item.DisplayTruckGraphic = parentToReturnTo.GetComponent<Truck>() != null;
+		_somethingDragging = false;
+
+		Destroy(placeholder);
+
+		Item.DisplayTruckGraphic = parentToReturnTo.GetComponentInParent<Truck>() != null;
 		transform.SetParent(parentToReturnTo, false);
 		transform.localPosition = Vector3.zero;
 
